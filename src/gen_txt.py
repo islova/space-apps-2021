@@ -32,7 +32,8 @@ def gen_coords():
 	ts = load.timescale()
 	t = ts.now()
 
-	gen_LSE()
+	if not os.path.isfile(lse_file):
+		gen_LSE()
 
 	counter = 0
 	l1 = ''
