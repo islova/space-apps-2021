@@ -7,7 +7,8 @@ import shutil
 
 wd = "../"
 common_name = 'cosmos-2251-debris'
-txt_path = wd + '/txt'
+common_txt_name = common_name + '.txt'
+txt_path = wd + 'txt'
 lse_file = txt_path + '/' + common_name + '.txt'
 coords_file = txt_path + '/' + common_name + '-coords.txt'
 
@@ -19,12 +20,12 @@ def create_txt_dir():
 
 
 def gen_LSE():
-	url_list = ['https://celestrak.com/NORAD/elements/cosmos-2251-debris.txt']
-	if not os.path.isdir('../txt'):
+	url_list = ['https://celestrak.com/NORAD/elements/' + common_txt_name]
+	if not os.path.isdir(txt_path):
 		create_txt_dir()
 	for i in url_list:
 		load.tle_file(i)
-	shutil.move("./cosmos-2251-debris.txt", "../txt/cosmos-2251-debris.txt")
+	shutil.move('./' + common_txt_name, txt_path + '/' + common_txt_name)
 
 
 def gen_coords():
