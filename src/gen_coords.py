@@ -46,7 +46,7 @@ def gen_coords():
 				debris = EarthSatellite(l1, l2, '', ts)
 				geocentric = debris.at(t)
 				subpoint = wgs84.subpoint(geocentric)
-				coords_str = str(subpoint.latitude.degrees) + ' ' + str(subpoint.longitude.degrees) + ' ' + str(subpoint.elevation.km)
+				coords_str = str(subpoint.latitude.degrees) + ',' + str(subpoint.longitude.degrees) + ',' + str(subpoint.elevation.km)
 				debris_list.append(coords_str)
 		elif counter % 3 == 1:
 			l1 = line
