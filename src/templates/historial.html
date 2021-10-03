@@ -1,0 +1,66 @@
+{% extends "layouts.html" %}
+
+{% block title %}
+    Historial
+{% endblock %}
+
+{% block main %}
+        <main class="container p-5">
+    <table class="table table-striped">
+        <thead align=left>
+            <tr>
+                <th scope="col">Componentes</th>
+                <th scope="col">Precio</th>
+                <th scope="col">Fecha</th>
+            </tr>
+        </thead>
+
+
+        <tbody align=left>
+            {% for i in range(0, number) %}
+            <tr>
+
+                <td>
+                    <b>Nombre subestación: </b> {{info[i]['nombre']}}
+                    <p><b>País: </b> {{info[i]['pais']}}</p>
+
+                    {% if info[i]['lineas'] != 0 %}
+                        <p>{{info[i]['lineas']}} tableros de Línea</p>
+                            <ul>
+                                <li>{{info[i]['lineas']}} REC670</li>
+                                <li>{{info[i]['lineas']}} RED670</li>
+                                <li>{{info[i]['lineas']}} REL670</li>
+                            </ul>
+                    {% endif %}
+
+                    {% if info[i]['trafos'] != 0 %}
+                    {{info[i]['trafos']}} tableros de Transformador
+                        <ul>
+                            <li>{{2 * info[i]['trafos']}} RET670</li>
+                            <li>{{info[i]['trafos']}} REC670</li>
+                        </ul>
+                    {% endif %}
+
+                    {% if info[i]['barras'] != 0 %}
+                    {{info[i]['barras']}} tableros de Barra
+                        <ul>
+                          <li>{{info[i]['barras']}} REB670</li>
+                        </ul>
+                    {% endif %}
+
+                    <b>Adicional: </b>{{info[i]['adicional']}}
+                </td>
+                <td>{{ info[i]['precio'] }}</td>
+                <td>{{ info[i]['timestamp'] }}</td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+        </main>
+    <footer class="text-center text-muted">
+        <a href="/form">Regresar</a>
+    </footer>
+{% endblock %}

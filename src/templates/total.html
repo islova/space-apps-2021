@@ -1,0 +1,54 @@
+{% extends "layouts.html" %}
+
+{% block title %}
+    Total
+{% endblock %}
+
+{% block main %}
+        <main class="container p-5">
+    <table class="table table-striped">
+        <thead align=left>
+            <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Latitud</th>
+                <th scope="col">Longitud</th>
+                <th scope="col">Elevacion</th>
+            </tr>
+        </thead>
+
+
+        <tbody align=left>
+            {% for i in range(0, cantidad) %}
+            <tr>
+                <td>
+                    {% if debris['lat'][i] %}
+                        <p>falta nombre</p>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if debris['lat'][i] %}
+                        <p>{{debris['lat'][i]}}°</p>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if debris['long'][i] %}
+                        <p>{{debris['long'][i]}}°</p>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if debris['elev'][i] %}
+                        <p>{{debris['elev'][i]}} km</p>
+                    {% endif %}
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+        </main>
+    <footer class="text-center text-muted">
+        <a href="/form">Regresar</a>
+    </footer>
+{% endblock %}

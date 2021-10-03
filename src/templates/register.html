@@ -1,0 +1,32 @@
+{% extends "layouts.html" %}
+
+{% block title %}
+    Registrarse
+{% endblock %}
+
+{% block main %}
+
+    <form action="/register" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Nombre de usuario" type="text">
+        </div>
+
+        <body>
+            <h6 align=left>Contraseña debe tener ciertas características:</h6>
+        </body>
+        <ul align=left>
+        <li>Contener mínimo 8 caracteres.</li>
+        <li>Incluir un caracter numérico.</li>
+        <li>Incluir un character especial ("@_!#$%^&*()<>?/|}{~:").</li>
+
+        </ul>
+
+        <div class="form-group">
+            <input class="form-control" name="password" placeholder="Contraseña" type="password">
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="confirmation" placeholder="Confirmar contraseña" type="password">
+        </div>
+        <button class="btn btn-primary" type="submit">Registrarse</button>
+    </form>
+{% endblock %}

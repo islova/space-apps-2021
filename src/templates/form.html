@@ -1,0 +1,31 @@
+{% extends "layouts.html" %}
+
+{% block title %}
+    Formulario
+{% endblock %}
+
+{% block main %}
+
+    <style>
+    .column {
+      float: left;
+      width: 50%;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+    </style>
+
+    <form action="/form" method="post">
+        <div class="form-group">
+        <h5><p>Debris</p></h5>
+        <input class="form-control" name="cantidad" min="0" placeholder="Cantidad a visualizar" type="number" required>
+        </div>
+        <br><button class="btn btn-primary" type="submit" align="center">Continuar</button></br>
+
+    </form></div>
+{% endblock %}
