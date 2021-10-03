@@ -119,11 +119,10 @@ def gen_coords():
 
 
 # Generates a file with future positions
-def might_collide():
+def gen_future_pos():
 	ts = load.timescale()
 	t = ts.now()  # Time at moment of execution
 
-	positions_list = []  # List with all future positions
 	counter = 0
 	name = ''
 	l1 = ''
@@ -157,6 +156,22 @@ def might_collide():
 
 	f_r.close()
 	f_a.close()
+
+
+# Determines wether a debris is too close to another based on the file previously generated
+def check_collision_risk():
+
+	positions_list = []  # List with all future positions
+	counter = 0
+	f_r = open(future_pos_file, 'r')
+	for line in f_r:
+		temp = line.split(',')
+		if temp[0] != '\n':
+			temp.pop(0)
+			temp[2].rstrip()
+			positions_list.append(Position(float(temp[0]), float(temp[1]), float(temp[2]), counter))
+		else:
+			counter += 1
 
 	for instant in range(collision_interval_time):  # Loops through the list of positions and determines if they are too close to each other
 		for current in range(1, total_debris):
