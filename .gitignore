@@ -1,1 +1,3 @@
 gen_txt.py
+__pycache__
+*.db
