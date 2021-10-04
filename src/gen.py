@@ -11,18 +11,14 @@ from datetime import timedelta, datetime
 
 # ---------- GLOBAL CONSTANTS ----------
 wd = "../"  # Where the txt/ directory will be created
-common_name = 'cosmos-2251-debris'  # Name of the txt with the tle (make sure this matches the file name at Celestrak)
+common_name = 'cosmos-2251-debris'  # Name of the txt with the TLE (make sure this matches the file name at Celestrak)
 common_txt_name = common_name + '.txt'  # Common_name + .txt
 txt_path = wd + 'txt/'  # Path of the txt/ directory
-lse_file = txt_path + common_name + '.txt'  # Name of the file with the LSEs
+tle_file = txt_path + common_name + '.txt'  # Name of the file with the LSEs
 future_pos_file = txt_path + common_name + '-future-pos.txt'  # Name of the file with the future positions
 
 collision_interval_km = 0.15  # Difference in elevation in which debris will be considered as might_collide
 collision_interval_time = 60  # Minutes into the future for which positions will be calculated
-
-enable_gen_future_pos = False  # When this is enabled, the .txt file for future positions is generated
-
-total_debris = 0  # <-- global variable
 # --------------------------------------
 
 
@@ -69,7 +65,7 @@ def gen_coords():
 	ts = load.timescale()
 	t = ts.now()
 
-	if not os.path.isfile(lse_file):
+	if not os.path.isfile(tle_file):
 		gen_LSE()
 
 	counter = 0
@@ -87,8 +83,8 @@ def gen_coords():
 					}
 	satellites = []
 
-	f = open(lse_file, 'r')
-	for line in f:  # Loops through the LSE txt file
+	f = open(tle_file, 'r')
+	for line in f:  # Loops through the TLE txt file
 		if counter % 3 == 0:
 			if name != '':
 				num += 1
@@ -117,7 +113,7 @@ def get_distances():
 	ts = load.timescale()
 	t = ts.now()
 
-	if not os.path.isfile(lse_file):
+	if not os.path.isfile(tle_file):
 		gen_LSE()
 	nearest = {
 				'distance': [],
@@ -210,7 +206,7 @@ def gen_future_pos():
 	if os.path.isfile(future_pos_file):
 		os.remove(future_pos_file)
 
-	f_r = open(lse_file, 'r')  # tle file
+	f_r = open(tle_file, 'r')  # tle file
 	f_a = open(future_pos_file, 'a')  # File with future positions
 	for line in f_r:
 		if counter % 3 == 0:
