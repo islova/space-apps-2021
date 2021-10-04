@@ -10,6 +10,13 @@ The program also allows the user to check for future possible collisions between
 
 ## User Manual
 
+In order to run the program, the user must first install all *dependencies* required to run the application. To do this, access the project's directory through the command line (WindowsPowerShell for Windows) and type in the following command.
+
+```bash
+pip install -r requirements.txt
+
+```
+
 To run the program, the user must access the proyect's ***src/*** directory and execute the following command from the command line.
 
 ```bash
