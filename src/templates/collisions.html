@@ -6,6 +6,7 @@
 
 {% block main %}
         <main class="container p-5">
+        <p>To update the data, generate a new file clicking on "Future Positions".</p>
     <table class="table table-striped">
         <thead align=left>
             <tr>
@@ -22,11 +23,15 @@
                 <td>
                     {% if risk['name1'][i] %}
                         <p>{{risk['name1'][i]}}</p>
+                        <p>{{risk['tle1'][i]}}</p>
+                        <p>{{risk['tle2'][i]}}</p>
                     {% endif %}
                 </td>
                 <td>
                     {% if risk['name2'][i] %}
                         <p>{{risk['name2'][i]}}</p>
+                        <p>{{risk['tle3'][i]}}</p>
+                        <p>{{risk['tle4'][i]}}</p>
                     {% endif %}
                 </td>
                 <td>
@@ -43,6 +48,6 @@
     </table>
         </main>
     <footer class="text-center text-muted">
-        <a href="/form">Regresar</a>
+        <a href="/form">Return</a>
     </footer>
 {% endblock %}

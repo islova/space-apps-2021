@@ -3,9 +3,8 @@ import os
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
-from werkzeug.security import check_password_hash, generate_password_hash
 
-from gen import login_required, gen_coords, get_distances, check_risk
+from gen import gen_coords, get_distances, check_risk, gen_future_pos
 
 app = Flask(__name__)
 
@@ -33,24 +32,27 @@ def form():
     coords, satellites, num = gen_coords()
     if request.method == "POST":
         cantidad = int(request.form.get('cantidad'))
+        if(cantidad > num):
+            cantidad = num
         return render_template("total.html", debris=coords, cantidad=cantidad)
     else:
         return render_template("form.html")
 
+@app.route("/future", methods=["GET", "POST"])
+def future():
+    if request.method == "POST":
+        gen_future_pos()
+        flash('Updated!')
+    return render_template("future.html")
 
 @app.route("/", methods=["GET", "POST"])
 def login():
     return redirect("/form")
 
-
 @app.route("/collisions")
 def closeness():
     coords, satellites, amount = gen_coords()
     risk, num = check_risk(amount)
-    '''for i in range(num):
-        print(num)
-        risk['name1'].append(satellites['name'][risk['deb1']])
-        risk['name2'].append(satellites['name'][risk['deb2']])'''
     return render_template("collisions.html", risk=risk, num=num)
 
 @app.route("/distances")
