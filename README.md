@@ -27,7 +27,7 @@ flask run
 
 This will then proceed to execute the web application where the data is found.
 
-The user is also given the option to generate the .txt file where all the future positions are stored, though users must be cautious since this process takes some time. Nonetheless, the functionality of the "collision predictor" can be tested using the [.txt file generated at 10/3/2021 8:00PM UTC-6](./txt/cosmos-2251-debris-future-pos.txt).
+The user is also given the option to generate the .txt file where all the future positions are stored, though users must be cautious since this process takes some time. Nonetheless, the functionality of the "collision predictor" can be tested using the [.txt file generated at 10/03/2021, 23:42:01 UTC-6](./txt/cosmos-2251-debris-future-pos.txt).
 
 ## Issues
 
@@ -37,7 +37,7 @@ It might be possible to achieve a better *performance* by using *multiple thread
 
 ## Design
 
-![Web Application design diagram](./design/web_app_diagram.png)
+![Web Application design diagram](design/web_diagram_app.png)
 
 ## Credits
 
