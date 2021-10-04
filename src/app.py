@@ -3,8 +3,8 @@ import os
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
-
-from gen import gen_coords, get_distances, check_risk, gen_future_pos
+from datetime import datetime
+from gen import gen_coords, get_distances, check_risk, gen_future_pos, last_modified
 
 app = Flask(__name__)
 
@@ -34,7 +34,8 @@ def form():
         cantidad = int(request.form.get('cantidad'))
         if(cantidad > num):
             cantidad = num
-        return render_template("total.html", debris=coords, cantidad=cantidad)
+        dt = datetime.now()
+        return render_template("total.html", debris=coords, cantidad=cantidad, dt=dt)
     else:
         return render_template("form.html")
 
@@ -53,9 +54,12 @@ def login():
 def closeness():
     coords, satellites, amount = gen_coords()
     risk, num = check_risk(amount)
-    return render_template("collisions.html", risk=risk, num=num)
+    dt = last_modified()
+    return render_template("collisions.html", risk=risk, num=num, dt=dt)
 
 @app.route("/distances")
 def distances():
+    dt = datetime.now()
+    print(dt)
     nearest, amount = get_distances()
-    return render_template("historial.html", nearest=nearest, amount=amount)
+    return render_template("historial.html", nearest=nearest, amount=amount, dt=dt)

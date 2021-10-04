@@ -6,7 +6,7 @@ import os
 import shutil
 from flask import redirect, render_template, request, session
 from functools import wraps
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 
 # ---------- GLOBAL CONSTANTS ----------
@@ -236,3 +236,8 @@ def gen_future_pos():
 
 	f_r.close()
 	f_a.close()
+
+def last_modified():
+    t = os.path.getmtime(future_pos_file)
+    time = datetime.fromtimestamp(t).strftime("%m/%d/%Y, %H:%M:%S")
+    return time
