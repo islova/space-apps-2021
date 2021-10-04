@@ -15,14 +15,16 @@ cur = conn.cursor()'''
 
 # ---------- GLOBAL CONSTANTS ----------
 wd = "../"  # Where the txt/ directory will be created
-common_name = 'cosmos-2251-debris'  # Name of the txt with the LSE (make sure this matches the file name at Celestrak)
+common_name = 'cosmos-2251-debris'  # Name of the txt with the tle (make sure this matches the file name at Celestrak)
 common_txt_name = common_name + '.txt'  # Common_name + .txt
 txt_path = wd + 'txt/'  # Path of the txt/ directory
 lse_file = txt_path + common_name + '.txt'  # Name of the file with the LSEs
 future_pos_file = txt_path + common_name + '-future-pos.txt'  # Name of the file with the future positions
 
-collision_interval_km = 5  # Difference in elevation in which debris will be considered as might_collide
+collision_interval_km = 0.15  # Difference in elevation in which debris will be considered as might_collide
 collision_interval_time = 60  # Minutes into the future for which positions will be calculated
+
+enable_gen_future_pos = False  # When this is enabled, the .txt file for future positions is generated
 
 total_debris = 0  # <-- global variable
 # --------------------------------------
@@ -58,7 +60,7 @@ def create_txt_dir():
 	os.mkdir(path)
 
 
-# Generates the LSE file
+# Generates the tle file
 def gen_LSE():
 	url_list = ['https://celestrak.com/NORAD/elements/' + common_txt_name]
 	if not os.path.isdir(txt_path):
@@ -90,7 +92,7 @@ def gen_coords():
 					}
 
 	f = open(lse_file, 'r')
-	for line in f:  # Loops through the LSE txt file
+	for line in f:  # Loops through the tle txt file
 		if counter % 3 == 0:
 			if name != '':
 				num += 1
@@ -123,6 +125,7 @@ def gen_future_pos():
 	ts = load.timescale()
 	t = ts.now()  # Time at moment of execution
 
+	num = 0
 	counter = 0
 	name = ''
 	l1 = ''
@@ -131,7 +134,7 @@ def gen_future_pos():
 	if os.path.isfile(future_pos_file):
 		os.remove(future_pos_file)
 
-	f_r = open(lse_file, 'r')  # LSE file
+	f_r = open(lse_file, 'r')  # tle file
 	f_a = open(future_pos_file, 'a')  # File with future positions
 	for line in f_r:
 		if counter % 3 == 0:
@@ -143,10 +146,10 @@ def gen_future_pos():
 					debris = EarthSatellite(l1, l2, '', ts)
 					geocentric = debris.at(t_new)
 					subpoint = wgs84.subpoint(geocentric)
-					positions_list.append(Position(subpoint.latitude.degrees, subpoint.longitude.degrees, subpoint.elevation.km, num))
-					pos_str = name + ',' + str(subpoint.latitude.degrees) + ',' + str(subpoint.longitude.degrees) + ',' + str(subpoint.elevation.km)
+					pos_str = str(num) + '  ' + name + ',' + str(subpoint.latitude.degrees) + ',' + str(subpoint.longitude.degrees) + ',' + str(subpoint.elevation.km)
 					f_a.write(pos_str + '\n')
 				f_a.write('\n')
+				num += 1
 			name = line.rstrip()
 		elif counter % 3 == 1:
 			l1 = line
@@ -182,8 +185,12 @@ def check_collision_risk():
 
 
 gen_coords()
-if os.path.isfile(lse_file):
-	might_collide()
+if enable_gen_future_pos:
+	gen_future_pos()
+if os.path.isfile(future_pos_file):
+	check_collision_risk()
+
+
 
 '''conn.close()'''
 
