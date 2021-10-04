@@ -61,7 +61,7 @@ def create_txt_dir():
 
 
 # Generates the tle file
-def gen_LSE():
+def gen_TLE():
 	url_list = ['https://celestrak.com/NORAD/elements/' + common_txt_name]
 	if not os.path.isdir(txt_path):
 		create_txt_dir()
@@ -77,7 +77,7 @@ def gen_coords():
 	t = ts.now()
 
 	if not os.path.isfile(lse_file):
-		gen_LSE()
+		gen_TLE()
 
 	counter = 0
 	num = 0
