@@ -20,18 +20,18 @@
             {% for i in range(num) %}
             <tr>
                 <td>
-                    {% if risk['deb1'][i] %}
+                    {% if risk['name1'][i] %}
                         <p>{{risk['name1'][i]}}</p>
                     {% endif %}
                 </td>
                 <td>
-                    {% if risk['deb2'][i] %}
+                    {% if risk['name2'][i] %}
                         <p>{{risk['name2'][i]}}</p>
                     {% endif %}
                 </td>
                 <td>
                     {% if risk['instant'][i] %}
-                        <p>{{risk['instant'][i]}} km</p>
+                        <p>{{risk['instant'][i]}}</p>
                     {% endif %}
                 </td>
             </tr>
