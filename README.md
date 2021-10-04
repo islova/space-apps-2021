@@ -4,6 +4,8 @@ This git repository corresponds to the code written for the *Mapping Space Trash
 
 The programming language used for this project was **Python**, in which **Flask** was utilized as a framework for the web application where all the information and data is visualized. 
 
+The objects tracked by this application correspond to the debris left by the collision and destruction of the russian satellite ***Cosmos 2251***.
+
 In order to obtain the data corresponding to debris currently orbiting around Earth, **CelesTrak** was used to obtain the TLE prameters, which are then passed as arguments to the **Skyfield API**, which obtains the coordinates and elevation corresponding to the satellite at a given time. This information is displayed on the web application and is refreshed when said web application is manually refereshed by the user.
 
 The program also allows the user to check for pair of debris which are at least 200km near each other. Due to processing issues, only 200 pairs of debris are analyzed.
