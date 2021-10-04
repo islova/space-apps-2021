@@ -1,7 +1,7 @@
 {% extends "layouts.html" %}
 
 {% block title %}
-    Historial
+    Distances
 {% endblock %}
 
 {% block main %}
@@ -9,49 +9,35 @@
     <table class="table table-striped">
         <thead align=left>
             <tr>
-                <th scope="col">Componentes</th>
-                <th scope="col">Precio</th>
-                <th scope="col">Fecha</th>
+                <th scope="col">Debris 1</th>
+                <th scope="col">Debris 2</th>
+                <th scope="col">Distance</th>
             </tr>
         </thead>
 
 
         <tbody align=left>
-            {% for i in range(0, number) %}
+            {% for i in range(amount) %}
             <tr>
-
                 <td>
-                    <b>Nombre subestación: </b> {{info[i]['nombre']}}
-                    <p><b>País: </b> {{info[i]['pais']}}</p>
-
-                    {% if info[i]['lineas'] != 0 %}
-                        <p>{{info[i]['lineas']}} tableros de Línea</p>
-                            <ul>
-                                <li>{{info[i]['lineas']}} REC670</li>
-                                <li>{{info[i]['lineas']}} RED670</li>
-                                <li>{{info[i]['lineas']}} REL670</li>
-                            </ul>
+                    {% if nearest['deb1'][i] %}
+                        <p>{{nearest['deb1'][i]}}</p>
+                        <p>{{nearest['tle1'][i]}}</p>
+                        <p>{{nearest['tle2'][i]}}</p>
                     {% endif %}
-
-                    {% if info[i]['trafos'] != 0 %}
-                    {{info[i]['trafos']}} tableros de Transformador
-                        <ul>
-                            <li>{{2 * info[i]['trafos']}} RET670</li>
-                            <li>{{info[i]['trafos']}} REC670</li>
-                        </ul>
-                    {% endif %}
-
-                    {% if info[i]['barras'] != 0 %}
-                    {{info[i]['barras']}} tableros de Barra
-                        <ul>
-                          <li>{{info[i]['barras']}} REB670</li>
-                        </ul>
-                    {% endif %}
-
-                    <b>Adicional: </b>{{info[i]['adicional']}}
                 </td>
-                <td>{{ info[i]['precio'] }}</td>
-                <td>{{ info[i]['timestamp'] }}</td>
+                <td>
+                    {% if nearest['deb2'][i] %}
+                        <p>{{nearest['deb2'][i]}}</p>
+                        <p>{{nearest['tle3'][i]}}</p>
+                        <p>{{nearest['tle4'][i]}}</p>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if nearest['distance'][i] %}
+                        <p>{{nearest['distance'][i]}} km</p>
+                    {% endif %}
+                </td>
             </tr>
 
             {% endfor %}
@@ -61,6 +47,6 @@
     </table>
         </main>
     <footer class="text-center text-muted">
-        <a href="/form">Regresar</a>
+        <a href="/form">Return</a>
     </footer>
 {% endblock %}

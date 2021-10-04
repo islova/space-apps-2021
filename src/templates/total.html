@@ -1,7 +1,7 @@
 {% extends "layouts.html" %}
 
 {% block title %}
-    Total
+    Data
 {% endblock %}
 
 {% block main %}
@@ -9,10 +9,10 @@
     <table class="table table-striped">
         <thead align=left>
             <tr>
-                <th scope="col">Nombre</th>
-                <th scope="col">Latitud</th>
-                <th scope="col">Longitud</th>
-                <th scope="col">Elevacion</th>
+                <th scope="col">Name</th>
+                <th scope="col">Latitude</th>
+                <th scope="col">Longitude</th>
+                <th scope="col">Elevation</th>
             </tr>
         </thead>
 
@@ -21,8 +21,8 @@
             {% for i in range(0, cantidad) %}
             <tr>
                 <td>
-                    {% if debris['lat'][i] %}
-                        <p>falta nombre</p>
+                    {% if debris['name'][i] %}
+                        <p>{{debris['name'][i]}}</p>
                     {% endif %}
                 </td>
                 <td>
@@ -49,6 +49,6 @@
     </table>
         </main>
     <footer class="text-center text-muted">
-        <a href="/form">Regresar</a>
+        <a href="/form">Return</a>
     </footer>
 {% endblock %}

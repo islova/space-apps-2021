@@ -1,0 +1,48 @@
+{% extends "layouts.html" %}
+
+{% block title %}
+    Collisions
+{% endblock %}
+
+{% block main %}
+        <main class="container p-5">
+    <table class="table table-striped">
+        <thead align=left>
+            <tr>
+                <th scope="col">Debris 1</th>
+                <th scope="col">Debris 2</th>
+                <th scope="col">Instant(mins from 10-3-2021 20:00 UTC-6)</th>
+            </tr>
+        </thead>
+
+
+        <tbody align=left>
+            {% for i in range(num) %}
+            <tr>
+                <td>
+                    {% if risk['deb1'][i] %}
+                        <p>{{risk['name1'][i]}}</p>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if risk['deb2'][i] %}
+                        <p>{{risk['name2'][i]}}</p>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if risk['instant'][i] %}
+                        <p>{{risk['instant'][i]}} km</p>
+                    {% endif %}
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+        </main>
+    <footer class="text-center text-muted">
+        <a href="/form">Regresar</a>
+    </footer>
+{% endblock %}

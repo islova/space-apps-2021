@@ -6,14 +6,11 @@ from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 import sqlite3
 
-from gen import login_required, gen_coords
-
-wd = '../lib/'
-debris_file = wd + 'debris.db'
+from gen import login_required, gen_coords, get_distances, check_risk
 
 app = Flask(__name__)
 
-conn = sqlite3.connect(debris_file)
+conn = sqlite3.connect('debris.db')
 cur = conn.cursor()
 
 @app.after_request
@@ -33,29 +30,21 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-'''def usd(value):
-    """Format value as USD."""
-    return f"${value:,.2f}"'''
-
 
 @app.route("/form", methods=["GET", "POST"])
 @login_required
 def form():
-    coords = gen_coords()
+    coords, satellites, num = gen_coords()
     if request.method == "POST":
-        cantidad = int(request.form.get("cantidad"))
-        latitudes = coords['lat']
-        longitudes = coords['long']
-        elevacion = coords['elev']
+        cantidad = int(request.form.get('cantidad'))
         return render_template("total.html", debris=coords, cantidad=cantidad)
-        return render_template("form.html")
     else:
         return render_template("form.html")
 
 
 @app.route("/", methods=["GET", "POST"])
 def login():
-    conn = sqlite3.connect(debris_file)
+    conn = sqlite3.connect('debris.db')
     cur = conn.cursor()
     """Log user in"""
 
@@ -114,7 +103,7 @@ def logout():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    conn = sqlite3.connect(debris_file)
+    conn = sqlite3.connect('debris.db')
     cur = conn.cursor()
 
     """Register user"""
@@ -145,21 +134,6 @@ def register():
             flash("Información incoherente!", 'error')
             return render_template("register.html")
 
-        '''special_char = set("@_!#$%^&*()<>?/|}{~:")
-        numeric_char = set("1234567890")
-
-        if not(any((c in special_char) for c in str(request.form.get("password")))):
-            flash("Contraseña inválida", 'error')
-            return render_template("register.html")
-
-        if not(any((c in numeric_char) for c in str(request.form.get("password")))):
-            flash("Contraseña inválida", 'error')
-            return render_template("register.html")
-
-        if len(request.form.get("password")) < 8:
-            flash("Contraseña inválida", 'error')
-            return render_template("register.html")'''
-
         cur.execute("INSERT INTO users (username, hash) VALUES (:username, :hash)",
                 {"username" : request.form.get("username"), "hash" : generate_password_hash(request.form.get("password"))})
 
@@ -172,63 +146,19 @@ def register():
 
 
 
-@app.route("/history")
+@app.route("/collisions")
 @login_required
-def history():
-    conn = sqlite3.connect(debris_file)
-    cur = conn.cursor()
+def closeness():
+    coords, satellites, amount = gen_coords()
+    risk, num = check_risk(amount)
+    '''for i in range(num):
+        print(num)
+        risk['name1'].append(satellites['name'][risk['deb1']])
+        risk['name2'].append(satellites['name'][risk['deb2']])'''
+    return render_template("collisions.html", risk=risk, num=num)
 
-    orders = []
-
-    cur.execute("SELECT orderID FROM records WHERE userID=:userID", {"userID" : session["user_id"]})
-    o = cur.fetchall()
-    for item in o:
-        orders.append(item[0])
-
-    cur.execute("SELECT COUNT(orderID) FROM records WHERE userID=:userID", {"userID" : session["user_id"]})
-    number = cur.fetchall()[0][0]
-    info = []
-
-    for order in orders:
-
-        cur.execute("SELECT lineas FROM records WHERE userID=:userID AND orderID=:orderID", {"userID" : session["user_id"], "orderID" : order})
-        lineas = cur.fetchall()[0][0]
-
-        cur.execute("SELECT trafos FROM records WHERE userID=:userID AND orderID=:orderID", {"userID" : session["user_id"], "orderID" : order})
-        trafos = cur.fetchall()[0][0]
-
-        barras = cur.execute("SELECT barras FROM records WHERE userID=:userID AND orderID=:orderID", {"userID" : session["user_id"], "orderID" : order})
-        barras = cur.fetchall()[0][0]
-
-        timestamp = cur.execute("SELECT timestamp FROM records WHERE userID=:userID AND orderID=:orderID", {"userID" : session["user_id"], "orderID" : order})
-        timestamp = cur.fetchall()[0][0]
-
-        precio = cur.execute("SELECT precio FROM records WHERE userID=:userID AND orderID=:orderID", {"userID" : session["user_id"], "orderID" : order})
-        precio = cur.fetchall()[0][0]
-
-        nombre = cur.execute("SELECT nombre FROM records WHERE userID=:userID AND orderID=:orderID", {"userID" : session["user_id"], "orderID" : order})
-        nombre = cur.fetchall()[0][0]
-
-        adicional = cur.execute("SELECT adicional FROM records WHERE userID=:userID AND orderID=:orderID", {"userID" : session["user_id"], "orderID" : order})
-        adicional = cur.fetchall()[0][0]
-
-        pais = cur.execute("SELECT pais FROM records WHERE userID=:userID AND orderID=:orderID", {"userID" : session["user_id"], "orderID" : order})
-        pais = cur.fetchall()[0][0]
-
-        data = {}
-        data['precio'] = precio
-        data['lineas'] = lineas
-        data['trafos'] = trafos
-        data['barras'] = barras
-        data['timestamp'] = timestamp
-        data['nombre'] = nombre
-        data['adicional'] = adicional
-        data['pais'] = pais
-
-        info.append(data)
-
-    conn.commit()
-
-    conn.close()
-
-    return render_template("historial.html", number=number, info=info)
+@app.route("/distances")
+@login_required
+def distances():
+    nearest, amount = get_distances()
+    return render_template("historial.html", nearest=nearest, amount=amount)

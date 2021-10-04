@@ -1,13 +1,12 @@
 # Copyright JAIA 2021 <https://github.com/islova/space-apps-2021>
 # This file generates txt files with the debris tracked by CelesTrak
 
-from flask import redirect, render_template, request, session
-from functools import wraps
 from skyfield.api import load, wgs84, EarthSatellite
-
 import os
 import sqlite3
 import shutil
+from flask import redirect, render_template, request, session
+from functools import wraps
 
 
 '''conn = sqlite3.connect('debris.db')
@@ -32,12 +31,12 @@ total_debris = 0  # <-- global variable
 
 # Class that defines a position
 class Position:
-	def __init__(self, latitude, longitude, elevation, id_):
+	def __init__(self, latitude, longitude, elevation, id_, name):
 		self.id = id_
 		self.latitude = latitude
 		self.longitude = longitude
 		self.elevation = elevation
-
+		self.name = name
 
 	# Determines if the position is too similar to another
 	# The latitude and longitude are rounded, the elevation is measured with an error margin of size "collision_interval_km"
@@ -47,21 +46,17 @@ class Position:
 			if round(self.latitude) == round(other.latitude) and \
 			 round(self.longitude) == round(self.longitude) and \
 			 self.elevation - collision_interval_km <= other.elevation <= self.elevation + collision_interval_km:
-				result = True 
+				result = True
 		except ValueError:
 			pass
 		return result
 
-
-# Creates txt/ dir in working directory
 def create_txt_dir():
 	dir_name = "txt"
 	path = os.path.join(wd, dir_name)
 	os.mkdir(path)
 
-
-# Generates the tle file
-def gen_TLE():
+def gen_LSE():
 	url_list = ['https://celestrak.com/NORAD/elements/' + common_txt_name]
 	if not os.path.isdir(txt_path):
 		create_txt_dir()
@@ -69,15 +64,14 @@ def gen_TLE():
 		load.tle_file(i)
 	shutil.move('./' + common_txt_name, txt_path + '/' + common_txt_name)
 
-
 # Generates a dictionary with current positions
 def gen_coords():
-     
+
 	ts = load.timescale()
 	t = ts.now()
 
 	if not os.path.isfile(lse_file):
-		gen_TLE()
+		gen_LSE()
 
 	counter = 0
 	num = 0
@@ -88,15 +82,19 @@ def gen_coords():
 					"name": [],
 					"lat": [],
 					"long" : [],
-					"elev" : []
+					"elev" : [],
+					"tle1" : [],
+					"tle2" : []
 					}
+	satellites = []
 
 	f = open(lse_file, 'r')
-	for line in f:  # Loops through the tle txt file
+	for line in f:  # Loops through the LSE txt file
 		if counter % 3 == 0:
 			if name != '':
 				num += 1
 				debris = EarthSatellite(l1, l2, '', ts)
+				satellites.append(debris)
 				geocentric = debris.at(t)
 				subpoint = wgs84.subpoint(geocentric)
 				debris_dic['id'].append(num)
@@ -104,95 +102,91 @@ def gen_coords():
 				debris_dic['lat'].append(subpoint.latitude.degrees)
 				debris_dic['long'].append(subpoint.longitude.degrees)
 				debris_dic['elev'].append(subpoint.elevation.km)
-				'''cur.execute("INSERT INTO junk (id, latitude, longitude, elevation) VALUES (:id, :latitude, :longitude, :elevation)", {"id" : num, "latitude": subpoint.latitude.degrees, "longitude" :
-    					subpoint.longitude.degrees, "elevation" : subpoint.elevation.km})'''
-    		name = line.rstrip()
-		elif counter % 3 == 1:
-			l1 = line
-		elif counter % 3 == 2:
-			l2 = line
-		counter += 1
-		'''conn.commit()'''
-	global total_debris
-	total_debris = num
-	f.close()
-	
-	return(debris_dic)
-
-
-# Generates a file with future positions
-def gen_future_pos():
-	ts = load.timescale()
-	t = ts.now()  # Time at moment of execution
-
-	num = 0
-	counter = 0
-	name = ''
-	l1 = ''
-	l2 = ''
-
-	if os.path.isfile(future_pos_file):
-		os.remove(future_pos_file)
-
-	f_r = open(lse_file, 'r')  # tle file
-	f_a = open(future_pos_file, 'a')  # File with future positions
-	for line in f_r:
-		if counter % 3 == 0:
-			if name != '':
-				for current_time in range(collision_interval_time):  # Increments by 1 minute every repetition
-					t_utc = t.utc_datetime()
-					t_utc += timedelta(minutes=current_time)  # Increments time by 1 minute
-					t_new = ts.from_datetime(t_utc)
-					debris = EarthSatellite(l1, l2, '', ts)
-					geocentric = debris.at(t_new)
-					subpoint = wgs84.subpoint(geocentric)
-					pos_str = str(num) + '  ' + name + ',' + str(subpoint.latitude.degrees) + ',' + str(subpoint.longitude.degrees) + ',' + str(subpoint.elevation.km)
-					f_a.write(pos_str + '\n')
-				f_a.write('\n')
-				num += 1
 			name = line.rstrip()
 		elif counter % 3 == 1:
 			l1 = line
+			debris_dic['tle1'].append(l1)
 		elif counter % 3 == 2:
 			l2 = line
+			debris_dic['tle2'].append(l2)
 		counter += 1
+	f.close()
+	return(debris_dic, satellites, num)
 
-	f_r.close()
-	f_a.close()
+def get_distances():
+	coords, satellites, num = gen_coords()
+	ts = load.timescale()
+	t = ts.now()
 
+	if not os.path.isfile(lse_file):
+		gen_LSE()
+	nearest = {
+				'distance': [],
+				'deb1': [],
+				'deb2': [],
+				"tle1" : [],
+				"tle2" : [],
+				"tle3" : [],
+				"tle4" : []
+			}
+
+	pair_amount = 0
+	for i in range(150):
+		for j in range(i + 1, 151):
+			if i != j:
+				position1 = (satellites[i]).at(t)
+				position2 = (satellites[j]).at(t)
+				distance = (position2 - position1).distance().km
+				if(distance < 200):
+					nearest['distance'].append(distance)
+					nearest['deb1'].append(coords['name'][i])
+					nearest['deb2'].append(coords['name'][j])
+					nearest['tle1'].append(coords['tle1'][i])
+					nearest['tle2'].append(coords['tle2'][i])
+					nearest['tle3'].append(coords['tle1'][j])
+					nearest['tle4'].append(coords['tle2'][j])
+					pair_amount += 1
+	return(nearest, pair_amount)
 
 # Determines wether a debris is too close to another based on the file previously generated
-def check_collision_risk():
+def check_risk(amount):
 
+	risk = {
+			"deb1": [],
+			"deb2": [],
+			"instant": [],
+			"name1":[],
+			"name2":[]
+			}
 	positions_list = []  # List with all future positions
 	counter = 0
 	f_r = open(future_pos_file, 'r')
 	for line in f_r:
 		temp = line.split(',')
 		if temp[0] != '\n':
+			temp_temp = temp[0].split('  ')
 			temp.pop(0)
 			temp[2].rstrip()
-			positions_list.append(Position(float(temp[0]), float(temp[1]), float(temp[2]), counter))
+			positions_list.append(Position(float(temp[0]), float(temp[1]), float(temp[2]), counter, temp_temp[1]))
 		else:
 			counter += 1
+	f_r.close()
 
+	num = 0
 	for instant in range(collision_interval_time):  # Loops through the list of positions and determines if they are too close to each other
-		for current in range(1, total_debris):
+		for current in range(1, 1000):
 			if (positions_list[instant].is_nearby(positions_list[current * collision_interval_time])):
+				risk['deb1'].append(positions_list[instant].id)
+				risk['deb2'].append(positions_list[current * collision_interval_time].id)
+				risk['instant'].append(instant)
+				risk['name1'].append(positions_list[instant].name)
+				risk['name2'].append(positions_list[current * collision_interval_time].name)
+				num += 1
 				print("Debris id:", positions_list[instant].id, \
 					"might collide with debris id:", positions_list[current * collision_interval_time].id, \
 					"at time interval number", instant)
-
-
-gen_coords()
-if enable_gen_future_pos:
-	gen_future_pos()
-if os.path.isfile(future_pos_file):
-	check_collision_risk()
-
-
-
-'''conn.close()'''
+	print(risk)
+	return(risk, num)
 
 def login_required(f):
     """
